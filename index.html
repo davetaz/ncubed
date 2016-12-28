@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LED Control 2</title>
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+  <!--<script src="http://code.jquery.com/jquery-2.1.0.min.js" type="text/javascript"></script>-->
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.2/raphael-min.js" type="text/javascript"></script>
+  <script src="./colorwheel.js" type="text/javascript"></script>
+  <style>
+  .example {
+    display: inline-block;
+  }
+  h2 {
+    display: inline-block;
+  }
+  </style>
+</head>
+
+<body>
+      <div id="usb1" class="example">
+        <h2>Port 1</h2>
+        <select name="switch" id="switch" data-role="slider" data-mini="true">
+		<option value="off">Off</option>
+		<option value="on">On</option>
+	</select>
+        <div >
+          <div style="float:left; width:100%; margin-bottom:20px">
+	    <input type="range" name="slider" id="slider" data-highlight="true" data-mini="true" value="0" min="0" max="255" />
+	    <div class="colorwheel" style="float:left; margin-right:20px; width:640px; text-align:left;"></div>
+            <div class="onchange" style="width: 100px; margin-left: 43px; margin-top: 46px; padding:5px; color:#FFF; height: 100px;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="usb2" class="example">
+        <h2>Port 2</h2>
+        <select name="switch" id="switch" data-role="slider" data-mini="true">
+		<option value="off">Off</option>
+		<option value="on">On</option>
+	</select>
+        <div >
+          <div style="float:left; width:100%; margin-bottom:20px">
+	    <input type="range" name="slider" id="slider" data-highlight="true" data-mini="true" value="0" min="0" max="255" />
+            <div class="colorwheel" style="float:left; margin-right:20px; width:300px; text-align:left;"></div>
+            <div class="onchange" style="width: 100px; margin-left: 43px; margin-top: 46px; padding:5px; color:#FFF; height: 100px;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="usb3" class="example">
+        <h2>Port 3</h2>
+        <select name="switch" id="switch" data-role="slider" data-mini="true">
+		<option value="off">Off</option>
+		<option value="on">On</option>
+	</select>
+        <div >
+          <div style="float:left; width:100%; margin-bottom:20px">
+	    <input type="range" name="slider" id="slider" data-highlight="true" data-mini="true" value="0" min="0" max="255" />
+            <div class="colorwheel" style="float:left; margin-right:20px; width:300px; text-align:left;"></div>
+            <div class="onchange" style="width: 100px; margin-left: 43px; margin-top: 46px; padding:5px; color:#FFF; height: 100px;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="usb4" class="example">
+        <h2>Port 4</h2>
+        <select name="switch" id="switch" data-role="slider" data-mini="true">
+		<option value="off">Off</option>
+		<option value="on">On</option>
+	</select>
+        <div >
+          <div style="float:left; width:100%; margin-bottom:20px">
+	    <input type="range" name="slider" id="slider" data-highlight="true" data-mini="true" value="0" min="0" max="255" />
+            <div class="colorwheel" style="float:left; margin-right:20px; width:300px; text-align:left;"></div>
+            <div class="onchange" style="width: 100px; margin-left: 43px; margin-top: 46px; padding:5px; color:#FFF; height: 100px;"></div>
+          </div>
+        </div>
+      </div>
+
+<style>
+rect {
+  display: none;
+}
+circle:nth-of-type(4) {
+  display: none;
+}
+circle:nth-of-type(5) {
+  display: none;
+}
+circle:nth-of-type(6) {
+  display: none;
+}
+.onchange {
+	display: none;
+}
+</style>
+<script>
+
+var inControl = false;
+
+function set_source(f, name, target){
+    this[name] = f(name);
+    target.text(f.toString())
+}
+
+function colorwheel(source){
+  var cw = Raphael.colorwheel($("#" + source + " .colorwheel")[0],200,0),
+      onchange_el = $("#"+source+" .onchange"),
+      ondrag_el = $("#"+source+" .ondrag");
+      cw.color("#F00");
+
+  $("#"+source+" #switch").bind( "change", function(event, ui) {
+  	toggle(source,$("#"+source+" #switch").val());
+  });
+
+  
+  $("#"+source+" #slider").bind( "change", function(event, ui) {
+  	brightness(source,$("#"+source+" #slider").val());
+  });
+ 
+  cw.onchange(function(color)
+    {
+      inControl = true;
+      var colors = [];
+      if ($("#"+source+" #slider").val() < 255) {
+        ratio = 255 / $("#"+source+" #slider").val();
+	var colors = [];
+	colors[0] = Math.round(parseInt(color.r) / ratio);
+	colors[1] = Math.round(parseInt(color.g) / ratio);
+	colors[2] = Math.round(parseInt(color.b) / ratio);
+      } else {
+        colors = [parseInt(color.r), parseInt(color.g), parseInt(color.b)]
+      }
+      config[source].dest = colors.join(",");
+      onchange_el.css("background", color.hex).text("RGB:"+colors.join(", "))
+    })
+  return cw;
+}
+
+function brightness(source,value) {
+        max = getMax(config[source].color);
+	if (max == 0 && value > 0) {
+		config[source].color = config[source].last;
+		max = getMax(config[source].last);
+	}
+	ratio = max / value;
+	colors = config[source].color.split(',');
+	colors[0] = Math.round(parseInt(colors[0]) / ratio);
+	colors[1] = Math.round(parseInt(colors[1]) / ratio);
+	colors[2] = Math.round(parseInt(colors[2]) / ratio);
+	config[source].dest = colors.join(",");	
+}
+
+function toggle(source,value) {
+	if (value == "off") {
+		config[source].last = config[source].color;
+		config[source].dest = "0,0,0";
+	} else if (value == "on") {
+		if (!config[source].last) config[source].last="255,0,0";
+		config[source].dest = config[source].last;
+	}
+}
+
+function rgb2hex(rgb){
+ rgbits = rgb.split(",");
+ return "#" +
+  ("0" + parseInt(rgbits[0]).toString(16)).slice(-2) +
+  ("0" + parseInt(rgbits[1]).toString(16)).slice(-2) +
+  ("0" + parseInt(rgbits[2]).toString(16)).slice(-2);
+}
+
+function getMax(rgb) {
+ rgbits = rgb.split(",");
+ max = 0;
+ for (i=0;i<3;i++) {
+  if (parseInt(rgbits[i]) > max) {
+     max = parseInt(rgbits[i]);
+  }
+ }
+ return max;
+}
+function updateColor(port,hex,max) {
+  if (!inControl) {
+  	this[port].color(hex);
+  	$("#"+port+" .onchange").css("background", hex);
+	$( "#"+port+" .ui-slider-bg" ).css('background-color', hex);
+	$( "#"+port+" .ui-slider-bg" ).css('border-color', hex);
+        if(max>0) {
+           $("#"+port+" #switch").val('on').slider("refresh");
+           $("#"+port+" #slider").val(max).slider("refresh");
+        }
+  }
+}
+
+function getColors(colors) {
+	return colors.split(',');
+}
+
+var config = {};
+function getConfig() {
+  $.getJSON( "get.php", function( data ) {
+    $.each(data, function(port,data) {
+    	config[port] = {};
+	config[port].color = data.color;
+        hex = rgb2hex(data.color);
+	max = getMax(data.color);
+        updateColor(port,hex,max);
+    });
+  });
+}
+function updateColors() {
+  var done = 0;
+  inControl = false;
+  $.each(config, function(port,data) {
+    if (data.color != data.dest && data.dest) {
+    	inControl = true;
+        data.color = data.dest;
+        config[port].color = data.dest;
+	max = getMax(data.dest);
+	intensity = $("#"+port+" #slider").val();
+	colors = data.dest.split(",");
+	if (intensity > max && max > 0) {
+		ratio = max / intensity;
+		colors = data.dest.split(",");
+		colors[0] = Math.round(parseInt(colors[0]) / ratio);
+		colors[1] = Math.round(parseInt(colors[1]) / ratio);
+		colors[2] = Math.round(parseInt(colors[2]) / ratio);
+		data.dest = colors.join(",");	
+		config[port].dest = data.dest;
+	} 
+	if (max > 0) {
+		config[port].last = data.dest;
+	}
+        hex = rgb2hex(data.dest);
+	$( "#"+port+" .ui-slider-bg" ).css('background-color', hex);
+	$( "#"+port+" .ui-slider-bg" ).css('border-color', hex);
+	$("#"+port+" #slider").val(max).slider("refresh");
+        $.getJSON('set.php?port=' + port + '&red=' + colors[0] + '&green=' + colors[1] + '&blue=' + colors[2],function(data) {});
+    }
+    done++;
+    if(done === Object.keys(config).length && !inControl) {
+    	//getConfig();
+    }
+   });
+}
+
+$(document).ready(function(){
+  var usb1;
+  var usb2;
+  var usb3;
+  var usb4;
+  set_source(colorwheel, "usb1", $("#usb1 .source"));
+  set_source(colorwheel, "usb2", $("#usb2 .source"));
+  set_source(colorwheel, "usb3", $("#usb3 .source"));
+  set_source(colorwheel, "usb4", $("#usb4 .source"));
+  getConfig();
+  var interval = setInterval(function() { updateColors(); },1000);
+  $('.ui-slider-input').css('display','none');
+  $('.ui-page').css('left','10px');
+  $('.ui-slider-switch').css('float','right');
+  $('.ui-slider-switch').css('margin','18px');
+});
+
+</script>
+
+</body>
+</html>
