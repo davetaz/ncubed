@@ -125,16 +125,13 @@ function colorwheel(source){
   cw.onchange(function(color)
     {
       inControl = true;
-      var colors = [];
+      var colors = [parseInt(color.r), parseInt(color.g), parseInt(color.b)]
       if ($("#"+source+" #slider").val() < 255) {
         ratio = 255 / $("#"+source+" #slider").val();
-	var colors = [];
-	colors[0] = Math.round(parseInt(color.r) / ratio);
-	colors[1] = Math.round(parseInt(color.g) / ratio);
-	colors[2] = Math.round(parseInt(color.b) / ratio);
-      } else {
-        colors = [parseInt(color.r), parseInt(color.g), parseInt(color.b)]
-      }
+	colors[0] = Math.round(colors[0] / ratio);
+	colors[1] = Math.round(colors[1] / ratio);
+	colors[2] = Math.round(colors[2] / ratio);
+      } 
       config[source].dest = colors.join(",");
       onchange_el.css("background", color.hex).text("RGB:"+colors.join(", "))
     })
@@ -219,7 +216,6 @@ function updateColors() {
     if (data.color != data.dest && data.dest) {
     	inControl = true;
         data.color = data.dest;
-        config[port].color = data.dest;
 	max = getMax(data.dest);
 	intensity = $("#"+port+" #slider").val();
 	colors = data.dest.split(",");
@@ -231,10 +227,12 @@ function updateColors() {
 		colors[2] = Math.round(parseInt(colors[2]) / ratio);
 		data.dest = colors.join(",");	
 		config[port].dest = data.dest;
+		max = intensity;
 	} 
 	if (max > 0) {
 		config[port].last = data.dest;
 	}
+        config[port].color = data.dest;
         hex = rgb2hex(data.dest);
 	$( "#"+port+" .ui-slider-bg" ).css('background-color', hex);
 	$( "#"+port+" .ui-slider-bg" ).css('border-color', hex);
@@ -258,7 +256,7 @@ $(document).ready(function(){
   set_source(colorwheel, "usb3", $("#usb3 .source"));
   set_source(colorwheel, "usb4", $("#usb4 .source"));
   getConfig();
-  var interval = setInterval(function() { updateColors(); },1000);
+  var interval = setInterval(function() { updateColors(); },500);
   $('.ui-slider-input').css('display','none');
   $('.ui-page').css('left','10px');
   $('.ui-slider-switch').css('float','right');
